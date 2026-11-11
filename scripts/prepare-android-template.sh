@@ -48,6 +48,9 @@ if build_path.exists():
 build_path.mkdir(parents=True)
 with zipfile.ZipFile(io.BytesIO(data)) as ready:
     ready.extractall(build_path)
+gradlew = build_path / "gradlew"
+if gradlew.exists():
+    gradlew.chmod(0o755)
 (build_path / ".gdignore").write_text("")
 ident = f"res://android/source.zip [{digest}]\n"
 (build_path.parent / ".build_version").write_text(ident)

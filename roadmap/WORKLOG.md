@@ -17,6 +17,8 @@
 
 Опубликовано: код среза `afab29ec7f89bf0e6b4fbfab560016f46cfaf26a`, правка тестов `a307463884c5e278fb5310f9f04f3fc27c46a247` на origin/main. GitHub Actions [server/43076137080](https://github.com/maillunex-lang/UfaCapital/actions/runs/43076137080) на `a307463` завершился успешно (`go test`, `docs-check`). Предыдущие два прогона падали: `DATABASE_URL` подменял имя роли, а не имя базы.
 
-11.11.2026, VPS: PostgreSQL принял соединения, процесс написал `ufacapital listening on :8088`. Снаружи порт не открылся: проверка с другой машины завершилась timeout. С 48-го тика поставка зерна откатывала весь тик (`CAPACITY_EXCEEDED`), мир стоял на месте. Поставка теперь кладёт только свободное место склада и не останавливает тик.
+11.11.2026, VPS: PostgreSQL принял соединения, процесс написал `ufacapital listening on :8088`. Сначала снаружи был timeout; затем открыт ufw 8088/tcp, повторная проверка `/healthz` вернула 200. С 48-го тика поставка зерна откатывала весь тик (`CAPACITY_EXCEEDED`). Поставка теперь кладёт только свободное место склада и не останавливает тик.
+
+11.11.2026, клиент 0.1.1: в APK добавлен нарисованный вид Уфы, мельница, пекарня, склад и лавка. Предыдущая сборка 0.1.0 была текстовой формой. Это не магазинная графика и не приёмка F10.
 
 11.11.2026, APK: `sdkmanager --list_installed` показал platform-tools 37.0.1, build-tools 36.1.0, android-35/36, NDK 29.0.14206865. Godot 4.7.2 `--export-debug Android` завершился с кодом 0. `aapt dump badging`: `dev.ufacapital.game`, versionName 0.1.0, minSdk 29, targetSdk 36, landscape, INTERNET, cleartext. `apksigner verify` — v2. SHA-256 APK `b138267bc530f7d5171f8c8a6cdea08936f81008a22b414d5eb448f567ca1157`, 166312212 байт. Файл и keystore вне Git. `adb devices` пуст. Первый Gradle с `-Xmx4536m` убит OOM; повтор с `-Xmx1024m` прошёл.
