@@ -15,4 +15,4 @@
 
 Ограничения последней проверки среды: Godot 4.6.3, Java21, Docker CLI присутствуют; `/usr/bin/go version` не подтвердил Go SDK; adb/sdkmanager не найдены; VPS и Android-устройство не предоставлены. Это наблюдения этапа 2, будущая сессия должна проверить свою среду заново.
 
-Опубликовано: `afab29ec7f89bf0e6b4fbfab560016f46cfaf26a` на origin/main. GitHub Actions на этот SHA ещё нужно сверить после завершения workflow `server`.
+Опубликовано: код среза `afab29ec7f89bf0e6b4fbfab560016f46cfaf26a`, правка тестов `a307463884c5e278fb5310f9f04f3fc27c46a247` на origin/main. GitHub Actions [server/43076137080](https://github.com/maillunex-lang/UfaCapital/actions/runs/43076137080) на `a307463` завершился успешно (`go test`, `docs-check`). Предыдущие два прогона падали: `DATABASE_URL` подменял имя роли, а не имя базы.
