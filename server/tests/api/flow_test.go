@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -51,10 +52,7 @@ func newEnv(t *testing.T) *env {
 		t.Fatal(err)
 	}
 	base := os.Getenv("DATABASE_URL")
-	url := strings.Replace(base, "/postgres", "/"+name, 1)
-	if url == base {
-		url = strings.Replace(base, "/ufacapital", "/"+name, 1)
-	}
+	url := dbURL(base, name)
 	pool, err := pgxpool.New(ctx, url)
 	if err != nil {
 		t.Fatal(err)
@@ -344,7 +342,7 @@ func TestMigrationUpgrade(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer admin.Exec(context.Background(), "DROP DATABASE "+name+" WITH (FORCE)")
-	url := strings.Replace(os.Getenv("DATABASE_URL"), "/postgres", "/"+name, 1)
+	url := dbURL(os.Getenv("DATABASE_URL"), name)
 	pool, err := pgxpool.New(ctx, url)
 	if err != nil {
 		t.Fatal(err)
@@ -375,6 +373,15 @@ func TestMigrationUpgrade(t *testing.T) {
 	if err := pool.QueryRow(ctx, `SELECT count(*) FROM accounts`).Scan(&n); err != nil {
 		t.Fatal(err)
 	}
+}
+
+func dbURL(base, name string) string {
+	u, err := url.Parse(base)
+	if err != nil {
+		return base
+	}
+	u.Path = "/" + name
+	return u.String()
 }
 
 func migrationsDir() string {
