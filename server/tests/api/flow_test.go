@@ -299,6 +299,23 @@ func TestEconomyFlow(t *testing.T) {
 	assertBalanced(t, e.pool)
 }
 
+func TestTickAdvancesWhenGrainWarehouseIsFull(t *testing.T) {
+	e := newEnv(t)
+	ctx := context.Background()
+	for i := 1; i <= 60; i++ {
+		if err := e.econ.Tick(ctx); err != nil {
+			t.Fatalf("tick %d: %v", i, err)
+		}
+	}
+	var tick int64
+	if err := e.pool.QueryRow(ctx, `SELECT tick FROM world_state WHERE id=1`).Scan(&tick); err != nil {
+		t.Fatal(err)
+	}
+	if tick != 60 {
+		t.Fatalf("tick stopped at %d", tick)
+	}
+}
+
 func TestAuthAndAdmin(t *testing.T) {
 	e := newEnv(t)
 	token := register(t, e, "adminish@example.test", "Админ")

@@ -627,6 +627,22 @@ func (s *Service) supplyGrain(ctx context.Context, tx pgx.Tx, day, qty int64) er
 	if err := tx.QueryRow(ctx, `SELECT owner_user_id FROM companies WHERE id=$1`, company).Scan(&user); err != nil {
 		return err
 	}
+	var cap, used int64
+	err = tx.QueryRow(ctx, `SELECT w.capacity, COALESCE((SELECT SUM(l.qty) FROM inventory_lots l WHERE l.warehouse_id=w.id),0)
+		FROM warehouses w
+		JOIN enterprises e ON e.id=w.enterprise_id
+		WHERE e.company_id=$1 AND e.status<>'closed'
+		ORDER BY w.capacity DESC LIMIT 1`, company).Scan(&cap, &used)
+	if err != nil {
+		return err
+	}
+	free := cap - used
+	if free < qty {
+		qty = free
+	}
+	if qty <= 0 {
+		return nil
+	}
 	tick, _ := s.tickOf(ctx, tx)
 	spoil, _ := s.cfg(ctx, tx, "grain_spoil_ticks")
 	if err := s.addLot(ctx, tx, company, "grain", qty, 0, tick, spoil); err != nil {
