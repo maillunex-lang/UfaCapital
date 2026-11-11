@@ -15,10 +15,42 @@
 
 Лицензии: Godot — MIT; Go — BSD-3-Clause; PostgreSQL — PostgreSQL License; OpenJDK — GPL-2.0 with Classpath Exception; Node.js — MIT.
 
+## Android SDK и APK
+
+SDK не входит в Git.
+
+| Что | Результат |
+|---|---|
+| SDK | `/opt/android-sdk` |
+| cmdline-tools | `latest`, ревизия 23.0.0 (`sdkmanager --list_installed`, код 0) |
+| platform-tools | 37.0.1, `adb` есть |
+| build-tools | 35.0.1, 36.0.0, 36.1.0 |
+| platforms | android-35, android-36 |
+| cmake | 3.10.2.4988404 |
+| NDK | 28.1.13356709 и 29.0.14206865 (шаблон Godot 4.7.2 просит 29) |
+| JDK | OpenJDK 17.0.20.1, `/usr/lib/jvm/java-17-openjdk-amd64` |
+| Export templates | `~/.local/share/godot/export_templates/4.7.2.stable`, `version.txt` = `4.7.2.stable` |
+| `android_source.zip` SHA-256 | `a15416b528efb0a19a7d187e4d9f4e5336d0689144b111329fb4bd12c4447ad3` |
+
+`scripts/prepare-android-template.sh` ставит в `client/android/` (каталог в `.gitignore`) исходный шаблон с `android:usesCleartextTraffic="true"` и Gradle `-Xmx1024m`. Официальные `-Xmx4536m` на машине с 4 ГБ RAM были убиты OOM. Keystore отладки лежит вне Git: `/opt/android-sdk/ufacapital-debug.keystore`, alias `androiddebugkey`, CN=`UFACAPITAL Debug`. Пароль — стандартный отладочный пароль Godot, в репозиторий не записан.
+
+Сборка: Godot `--headless --export-debug Android`, Gradle `assembleStandardDebug`, код 0.
+
+| Поле APK | Значение |
+|---|---|
+| Файл | `client/build/UFACAPITAL-debug.apk` (в Git не входит) |
+| Размер | 166312212 байт |
+| SHA-256 | `b138267bc530f7d5171f8c8a6cdea08936f81008a22b414d5eb448f567ca1157` |
+| package | `dev.ufacapital.game`, versionCode 1, versionName `0.1.0` |
+| SDK | min 29, target 36, compile 36; landscape; `INTERNET`; cleartext разрешён |
+| ABI | `arm64-v8a`, `x86_64` |
+| Подпись | `apksigner verify`: v2, сертификат SHA-256 `da6d7387a95f8d0787a669144b049d93fff9c30e299b3018496ac968aa40f951` |
+
+minSdk 29 задаёт сам Godot для рендерера `mobile` (Vulkan). `adb devices` после `adb start-server` пустой: телефона и эмулятора нет, APK на устройство не ставился. На телефоне адрес `127.0.0.1` — это сам телефон; нужен LAN-адрес сервера. Это debug-сборка, не публикация в магазин.
+
 ## Не подтверждено
 
-- `docker` и `docker compose` в этой среде отсутствуют (`command not found`). Файл [infrastructure/dev/docker-compose.yml](../../infrastructure/dev/docker-compose.yml) записан, команда `docker compose config` не выполнялась. Статус проверки: BLOCKED.
-- `sdkmanager` и `adb` отсутствуют. Export templates Godot 4.7.2 не скачаны. Сборка APK: BLOCKED.
-- Публичный VPS и физическое Android-устройство не предоставлены. Человеческая приёмка F10 не может быть DONE.
+- `docker` и `docker compose` в этой среде отсутствуют (`command not found`). Файл [infrastructure/dev/docker-compose.yml](../../infrastructure/dev/docker-compose.yml) записан, команда `docker compose config` не выполнялась. Из-за этого F00-T01 остаётся BLOCKED.
+- Публичный VPS не предоставлен. `adb devices` пуст: APK собран и проверен `aapt`/`apksigner`, но на телефон не устанавливался. F10 не DONE.
 
 Локальная база для интеграционных тестов слушает только `127.0.0.1:5432`, пользователь `ufacapital`, trust. Это не конфигурация продакшена и не попадает в Git.

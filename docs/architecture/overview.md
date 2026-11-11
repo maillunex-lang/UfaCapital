@@ -35,7 +35,7 @@ flowchart LR
 
 Godot 4/GDScript, Compatibility renderer для 2D; Go stdlib HTTP + pgx, PostgreSQL18, React+TypeScript+Vite для админки; Ubuntu24.04 LTS, Compose/Nginx. Выбор Go обусловлен транзакционными командами, конкурентными тестами, простой поставкой одного бинарника. React даёт удобные специализированные формы; тяжёлые конструкторы и отдельный Node production backend не нужны: Vite собирает статику, её отдаёт Nginx.
 
-Наблюдение официальных релизов этапа 2: Godot 4.7.2-stable и Go1.27.4. Это кандидаты toolchain; F00 проверяет checksum, стабильность и фиксирует точные версии/templates/SDK/Node/npm/pgx/образов/Actions. В текущей среде Godot 4.6.3, Java21; рабочий Go SDK/Android SDK не подтверждены. Не подменять выбранный релиз тем, что случайно установлен. Документация Godot Android рекомендует JDK17, SDK35/build-tools35.0.1; конкретный набор сверяется с закреплённой версией. AAB и требования магазина — отдельная release-задача; срез требует APK.
+Наблюдение официальных релизов этапа 2: Godot 4.7.2-stable и Go 1.27.4. Точные версии, SDK и собранный debug APK зафиксированы в [toolchain](../operations/toolchain.md). Ранняя заметка про Godot 4.6.3 и отсутствие Android SDK относилась к другой машине и больше не описывает текущую среду сборки.
 
 ## Сеть и доверие
 

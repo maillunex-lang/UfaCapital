@@ -1,6 +1,6 @@
 # Контекст UFACAPITAL
 
-Обновлено 11.11.2026. **PROGRAMMING_AUTHORIZED: true** для среза F00–F10 (DEC-002). GATE-CODE снят. Активная задача: F00-T01, статус BLOCKED по docker/sdkmanager, остальная среда проверена. Следующий код — довести админку, APK и VPS, не отмечая их DONE без доказательств.
+Обновлено 11.11.2026. **PROGRAMMING_AUTHORIZED: true** для среза F00–F10 (DEC-002). GATE-CODE снят. Активная задача: F00-T01, статус BLOCKED только из-за отсутствия `docker compose config`. Android SDK установлен, debug APK собран и проверен, на телефон не ставился. Админка и VPS по-прежнему не DONE.
 
 ## Утверждено и обязательно
 
@@ -16,9 +16,9 @@ Go модульный монолит, PostgreSQL18, Docker Compose/Nginx, HTTPS 
 
 ## Сделано / сейчас / ограничения
 
-Сделаны документы этапов 1–3 и первый исполняемый контур: Go-сервер (регистрация, компании, мельница/пекарня, рынок, контракт, кредит, два ИИ-профиля, тик, идемпотентность), миграции PostgreSQL, интеграционный тест на PostgreSQL 18.6, браузерный стол `web/desk`, проект Godot 4.7.2 без APK. CI workflow записан; прогон GitHub Actions ещё не подтверждён до push.
+Сделаны документы этапов 1–3 и первый исполняемый контур: Go-сервер (регистрация, компании, мельница/пекарня, рынок, контракт, кредит, два ИИ-профиля, тик, идемпотентность), миграции PostgreSQL, интеграционный тест на PostgreSQL 18.6, браузерный стол `web/desk`, клиент Godot 4.7.2 и отладочный APK `dev.ufacapital.game` 0.1.0. CI [server/43076137080](https://github.com/maillunex-lang/UfaCapital/actions/runs/43076137080) на `a307463` зелёный.
 
-Проверено локально: `go test` экономики на PostgreSQL 18.6; `go version` 1.27.4; Godot `--version` 4.7.2 и headless-загрузка проекта; `node scripts/docs-check.mjs`. Не выполнены: `docker compose config` (нет docker CLI), `sdkmanager` (нет Android SDK и export templates), публичный HTTPS, установка APK на устройство, второй живой человек. F10 не DONE.
+Проверено локально: `go test` экономики на PostgreSQL 18.6; `go version` 1.27.4; Godot `--version` 4.7.2; `sdkmanager --list_installed`; `aapt dump badging` и `apksigner verify` на APK. Не выполнены: `docker compose config` (нет docker CLI), публичный HTTPS, `adb devices` пуст, второй живой человек. F10 не DONE. APK и keystore в Git не коммитятся.
 
 Без согласования нельзя менять концепцию/платформу/регион, серверную власть, полный онлайн, возможности/прозрачность ИИ, начальную админку/редактор графики или честную монетизацию. История решений не переписывается. F11–F13 не начинать, пока срез не принят.
 
