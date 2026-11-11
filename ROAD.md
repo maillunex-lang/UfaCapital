@@ -2,7 +2,7 @@
 
 **A — Деловая республика:** общий рынок Башкортостана, производство и специализация компаний. Godot 4/GDScript/Android landscape; Go+PostgreSQL18, Ubuntu24.04/Compose/Nginx; React/TS/Vite admin. Истина денег/ресурсов — только сервер.
 
-**Активно:** [GATE-CODE](roadmap/tasks/GATE-CODE.md), BLOCKED — ожидается отдельное разрешение заказчика. **Следующая:** [F00-T01](roadmap/tasks/F00-T01.md). Программирование пока не разрешено; выбор «А» утверждает концепцию.
+**Активно:** [F00-T01](roadmap/tasks/F00-T01.md), BLOCKED — docker CLI и Android SDK отсутствуют; Godot/Go/JDK/Node/PostgreSQL 18.6 проверены. **Разрешение:** [DEC-002](docs/decisions/DECISIONS.md), PROGRAMMING_AUTHORIZED=true для F00–F10. GATE-CODE снят.
 
 | Подготовка | Статус | Результат |
 |---|---|---|
@@ -12,8 +12,8 @@
 
 | Реализация | Статус | Зависимость |
 |---|---|---|
-| [F00 среда/контракты](roadmap/phases/F00-foundation.md) | BLOCKED | GATE-CODE |
-| [F01 сервер/БД/auth/admin](roadmap/phases/F01-server-identity-admin.md) | NOT_STARTED | F00 |
+| [F00 среда/контракты](roadmap/phases/F00-foundation.md) | BLOCKED | нет docker compose и sdkmanager; см. toolchain |
+| [F01 сервер/БД/auth/admin](roadmap/phases/F01-server-identity-admin.md) | IN_PROGRESS | сервер и тест есть; веб-админка ещё не собрана |
 | [F02 Android/VIP/test-admin](roadmap/phases/F02-android-access.md) | NOT_STARTED | F01 |
 | [F03 ledger/компании/кредит](roadmap/phases/F03-ledger-companies.md) | NOT_STARTED | F02 |
 | [F04 склад/работники/выпуск](roadmap/phases/F04-production-inventory.md) | NOT_STARTED | F03 |

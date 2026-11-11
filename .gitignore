@@ -1,0 +1,33 @@
+# secrets and local state
+.env
+.env.*
+!.env.example
+*.keystore
+*.jks
+*.pem
+*.key
+data/
+tmp/
+*.log
+
+# Go
+bin/
+coverage.out
+
+# Node / admin
+node_modules/
+admin/dist/
+admin/.vite/
+
+# Godot
+client/.godot/
+client/.import/
+client/android/
+client/build/
+*.apk
+*.aab
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/

@@ -1,0 +1,16 @@
+# Local PostgreSQL only. The port is bound to loopback.
+# `docker compose config` could not be executed in the build sandbox: docker CLI is absent.
+services:
+  postgres:
+    image: postgres:18.6@sha256:e923a22ac074261dd73970c57edf659475bf0497cb9456f17d98ed7cdd3ca913
+    environment:
+      POSTGRES_USER: ufacapital
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD outside git}
+      POSTGRES_DB: ufacapital
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - ufacapital_pg:/var/lib/postgresql/data
+
+volumes:
+  ufacapital_pg:
