@@ -50,7 +50,12 @@ minSdk 29 задаёт сам Godot для рендерера `mobile` (Vulkan).
 
 ## Не подтверждено
 
-- `docker` и `docker compose` в этой среде отсутствуют (`command not found`). Файл [infrastructure/dev/docker-compose.yml](../../infrastructure/dev/docker-compose.yml) записан, команда `docker compose config` не выполнялась. Из-за этого F00-T01 остаётся BLOCKED.
-- Публичный VPS не предоставлен. `adb devices` пуст: APK собран и проверен `aapt`/`apksigner`, но на телефон не устанавливался. F10 не DONE.
+- Android-проверки (`sdkmanager`, `aapt`, `apksigner`, экспорт APK) сделаны 11.11 в среде сборки Grok. На VPS Android SDK нет, там они не повторялись.
+- `adb devices` пуст: APK на телефон не устанавливался. F10 не DONE.
+- Обнаружение скиллов AI-хостами не проверялось.
+
+## Среда VPS, 12.11.2026
+
+Docker 29.1.3 и Compose 2.40.3 есть. `docker compose -f infrastructure/dev/docker-compose.yml config` с паролем-заглушкой в окружении завершился кодом 0; без пароля — кодом 1. Запуск и остановка базы проверены во временном проекте на порту 55439 (`SELECT version()` → PostgreSQL 18.6, `down -v` → код 0). Go 1.27.4, Godot 4.7.2, Java 21.0.13, Node v26.13.0 — Java и Node новее записанных выше версий среды сборки. Админка собирается на Node 26.13.0 (эта же версия в CI). Таблица команд — в [F00-T01](../../roadmap/tasks/F00-T01.md).
 
 Локальная база для интеграционных тестов слушает только `127.0.0.1:5432`, пользователь `ufacapital`, trust. Это не конфигурация продакшена и не попадает в Git.

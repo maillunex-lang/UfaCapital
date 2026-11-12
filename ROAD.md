@@ -2,7 +2,7 @@
 
 **A — Деловая республика:** общий рынок Башкортостана, производство и специализация компаний. Godot 4/GDScript/Android landscape; Go+PostgreSQL18, Ubuntu24.04/Compose/Nginx; React/TS/Vite admin. Истина денег/ресурсов — только сервер.
 
-**Активно:** [F00-T01](roadmap/tasks/F00-T01.md), BLOCKED — нет `docker compose config`. Android SDK установлен, отладочный APK собран, на устройство не ставился. Godot/Go/JDK/Node/PostgreSQL 18.6 проверены. **Разрешение:** [DEC-002](docs/decisions/DECISIONS.md), PROGRAMMING_AUTHORIZED=true для F00–F10. GATE-CODE снят.
+**Активно:** [F00-T01](roadmap/tasks/F00-T01.md), REVIEW — `docker compose config` выполнен, Android-проверки в среде VPS не повторены. Сервер работает на VPS по HTTP, первая версия админки выкачена. APK 0.1.1 на устройство не ставился. **Разрешение:** [DEC-002](docs/decisions/DECISIONS.md), PROGRAMMING_AUTHORIZED=true для F00–F10. GATE-CODE снят.
 
 | Подготовка | Статус | Результат |
 |---|---|---|
@@ -12,8 +12,8 @@
 
 | Реализация | Статус | Зависимость |
 |---|---|---|
-| [F00 среда/контракты](roadmap/phases/F00-foundation.md) | BLOCKED | нет docker compose; SDK и debug APK есть, установки на телефон нет |
-| [F01 сервер/БД/auth/admin](roadmap/phases/F01-server-identity-admin.md) | IN_PROGRESS | сервер и тест есть; веб-админка ещё не собрана |
+| [F00 среда/контракты](roadmap/phases/F00-foundation.md) | REVIEW | docker compose проверен; Android-проверки сделаны в другой среде, скиллы хостов не проверены |
+| [F01 сервер/БД/auth/admin](roadmap/phases/F01-server-identity-admin.md) | IN_PROGRESS | сервер, тесты и первая версия админки есть; нет блокировки игроков, редакторов каталога, проверки человеком |
 | [F02 Android/VIP/test-admin](roadmap/phases/F02-android-access.md) | NOT_STARTED | F01 |
 | [F03 ledger/компании/кредит](roadmap/phases/F03-ledger-companies.md) | NOT_STARTED | F02 |
 | [F04 склад/работники/выпуск](roadmap/phases/F04-production-inventory.md) | NOT_STARTED | F03 |
@@ -21,7 +21,7 @@
 | [F06 ИИ/симуляция](roadmap/phases/F06-ai-simulation.md) | NOT_STARTED | F05 |
 | [F07 ассеты/полнотаadmin](roadmap/phases/F07-assets-admin-complete.md) | NOT_STARTED | F06 |
 | [F08 recovery/security/load](roadmap/phases/F08-recovery-security.md) | NOT_STARTED | F07 |
-| [F09 stagingVPS/backup](roadmap/phases/F09-vps-operations.md) | NOT_STARTED | F08 |
+| [F09 stagingVPS/backup](roadmap/phases/F09-vps-operations.md) | IN_PROGRESS | служба на VPS по HTTP; нет HTTPS, резервной копии, staging, мониторинга |
 | [F10 первый срез](roadmap/phases/F10-vertical-acceptance.md) | NOT_STARTED | F09 |
 | [F11 региональное развитие](roadmap/phases/F11-regional-growth.md) | NOT_STARTED | F10 |
 | [F12 объединения/инвестиции](roadmap/phases/F12-cooperation-investment.md) | NOT_STARTED | F11 |

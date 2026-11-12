@@ -4,11 +4,13 @@
 
 | Задача | Владелец | Ветка/base | Область | Статус |
 |---|---|---|---|---|
-| F00-T01 | Claude | main / 515569e | `docker compose config`, toolchain.md, статусы | IN_PROGRESS с 12.11.2026 |
-| F09 живой сервер на VPS | Claude | main / 515569e | systemd-служба, infrastructure/, docs/operations | IN_PROGRESS с 12.11.2026 |
-| F01 веб-админка | Claude | main / 515569e | web/admin, server admin API и тесты | после живого сервера |
+| F00-T01 | Claude | main / 515569e | `docker compose config`, toolchain.md, статусы | REVIEW с 12.11.2026 |
+| F09 живой сервер на VPS | Claude | main / 515569e | systemd-служба, infrastructure/, docs/operations | IN_PROGRESS; BLOCKED по HTTPS, домену, резервной копии |
+| F01 веб-админка | Claude | main / 515569e | web/admin, server admin API и тесты | REVIEW: нужна проверка человеком в браузере |
 
-Сделано: миграции, ledger, производство grain→flour→bread, рынок, контракт, кредит, два ИИ, идемпотентность, интеграционный тест на PostgreSQL 18.6, стол браузера, клиент Godot 4.7.2 и отладочный APK. Не сделано: установка APK на телефон, VPS/HTTPS, админка React, замена ассетов, человеческая приёмка. Следующий шаг: отдать APK на скачивание; F00 остаётся BLOCKED без `docker compose config`. Не переходить к F11.
+Сделано: миграции, ledger, производство grain→flour→bread, рынок, контракт, кредит, два ИИ, идемпотентность, интеграционные тесты на PostgreSQL 18.6, стол браузера, клиент Godot 4.7.2, APK 0.1.1, служба на VPS, первая версия админки. Не сделано: установка APK на телефон, HTTPS, резервная копия, замена ассетов, человеческая приёмка. Не переходить к F11.
+
+Handoff 12.11.2026 (Claude). Коммиты: `307ccf3` запись в WORKLOG; `5ad8d1e` unit и `infrastructure/vps/deploy.sh`; `5e8f7dd` админка и серверные доработки. Служба `ufacapital` работает из `5e8f7dd`. До выкатки бинарник был от `fa21580`, службы не существовало. Изменённый контракт: новый `GET /admin/api/v1/config`; `POST /admin/api/v1/config` отвечает 404 `UNKNOWN_KEY` на неизвестный ключ; в ответах `audit` добавлены `actor`, `before`, `after`, в `players` — `roles`; всё под `/admin` закрыто для не-локальных адресов. Суперадмин создан, данные входа в `/opt/ufacapital-admin.txt` на сервере. BLOCKED: HTTPS/домен (нужен домен от владельца), установка APK и второй игрок (нужны люди), резервная копия (нужно внешнее хранилище), проверка `:8088` с другой машины. Диск VPS 91%. Следующий маленький шаг: владелец входит в админку через SSH-туннель по [deployment](../docs/operations/deployment.md) и подтверждает или возвращает замечания.
 
 Шаблон назначения: taskID, владелец/инструмент, branch/worktree, baseSHA, allowlist файлов, API/миграции, начало, зависимость. Перед правкой проверить свежий git status/log/origin. Одна область — один владелец; для конфликтующей задачи отдельный PR, не перезапись main.
 
