@@ -1,11 +1,12 @@
 # Передача контекста и границы работы
 
-Обновлено 11.11.2026. DEC-002 разрешил программирование F00–F10. GATE-CODE снят. Владелец текущей задачи — Grok, ветка main, base `7f12d29543373ac9aafa0cea196bb75f3abc176b`.
+Обновлено 12.11.2026. DEC-002 разрешил программирование F00–F10. GATE-CODE снят. Владелец текущей задачи — Claude, ветка main, base `515569e69f3b4f372698690aac57eae80740a2a9`. Прежний владелец — Grok (base `7f12d29`).
 
 | Задача | Владелец | Ветка/base | Область | Статус |
 |---|---|---|---|---|
-| F00-T01 | Grok | main / 7f12d29 | toolchain, compose, .env.example, .gitignore | BLOCKED: нет docker; SDK и debug APK есть |
-| F01 сервер | Grok | main / 7f12d29 | server/, tests, web/desk, client/ | IN_PROGRESS |
+| F00-T01 | Claude | main / 515569e | `docker compose config`, toolchain.md, статусы | IN_PROGRESS с 12.11.2026 |
+| F09 живой сервер на VPS | Claude | main / 515569e | systemd-служба, infrastructure/, docs/operations | IN_PROGRESS с 12.11.2026 |
+| F01 веб-админка | Claude | main / 515569e | web/admin, server admin API и тесты | после живого сервера |
 
 Сделано: миграции, ledger, производство grain→flour→bread, рынок, контракт, кредит, два ИИ, идемпотентность, интеграционный тест на PostgreSQL 18.6, стол браузера, клиент Godot 4.7.2 и отладочный APK. Не сделано: установка APK на телефон, VPS/HTTPS, админка React, замена ассетов, человеческая приёмка. Следующий шаг: отдать APK на скачивание; F00 остаётся BLOCKED без `docker compose config`. Не переходить к F11.
 
