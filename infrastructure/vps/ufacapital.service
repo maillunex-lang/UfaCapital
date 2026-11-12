@@ -1,0 +1,26 @@
+# UFACAPITAL game server on the VPS. Installed by infrastructure/vps/deploy.sh.
+# Secrets live only in /opt/ufacapital.env (root, 0600). They are not in git.
+[Unit]
+Description=UFACAPITAL game server
+Wants=network-online.target
+After=network-online.target docker.service
+
+[Service]
+User=ufacapital
+Group=ufacapital
+WorkingDirectory=/opt/ufacapital
+EnvironmentFile=/opt/ufacapital.env
+Environment=MIGRATIONS_DIR=/opt/ufacapital/migrations
+Environment=ASSET_DIR=/var/lib/ufacapital/assets
+StateDirectory=ufacapital
+ExecStart=/opt/ufacapital/ufacapitald
+# PostgreSQL runs in Docker and may come up later than this unit after a reboot.
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

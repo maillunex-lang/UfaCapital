@@ -97,10 +97,6 @@ func (s *Server) health(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) register(w http.ResponseWriter, r *http.Request) {
-	var body struct {
-		Email, Password, DisplayName string `json:"email"`
-	}
-	// decode manually to keep field names
 	var in struct {
 		Email       string `json:"email"`
 		Password    string `json:"password"`
@@ -109,7 +105,6 @@ func (s *Server) register(w http.ResponseWriter, r *http.Request) {
 	if !readJSON(w, r, &in) {
 		return
 	}
-	_ = body
 	sess, err := s.Auth.Register(r.Context(), in.Email, in.Password, in.DisplayName)
 	if err != nil {
 		writeErr(w, r, err)
