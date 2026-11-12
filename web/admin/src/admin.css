@@ -1,0 +1,160 @@
+:root {
+  color-scheme: light dark;
+  --bg: #f6f7f9;
+  --panel: #fff;
+  --text: #16191d;
+  --muted: #5b6470;
+  --line: #d9dde3;
+  --accent: #0b5cad;
+  --bad: #b3261e;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14171b;
+    --panel: #1d2127;
+    --text: #e8eaed;
+    --muted: #9aa3ae;
+    --line: #333a44;
+    --accent: #7db7f5;
+    --bad: #f2877f;
+  }
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 15px/1.45 system-ui, sans-serif;
+}
+main {
+  padding: 16px;
+  overflow-x: auto;
+}
+.center {
+  display: grid;
+  place-items: center;
+  padding: 24px 16px;
+}
+.top {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 16px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
+}
+.top nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  flex: 1;
+}
+.who {
+  color: var(--muted);
+}
+button,
+input {
+  font: inherit;
+  color: inherit;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 6px 10px;
+}
+button {
+  cursor: pointer;
+}
+button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.tab.on {
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+.card {
+  display: grid;
+  gap: 12px;
+  width: min(360px, 100%);
+  padding: 20px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+.card label,
+.editor label {
+  display: grid;
+  gap: 4px;
+}
+h1 {
+  margin: 0;
+  font-size: 20px;
+}
+.head {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+  background: var(--panel);
+}
+th,
+td {
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+td input {
+  margin-right: 6px;
+}
+.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.json {
+  font: 12px/1.4 ui-monospace, monospace;
+  max-width: 320px;
+  overflow-wrap: anywhere;
+}
+.badge {
+  padding: 1px 6px;
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  color: var(--accent);
+  font-size: 12px;
+}
+.error {
+  color: var(--bad);
+  margin: 4px 0;
+}
+.note {
+  color: var(--muted);
+}
+.editor {
+  display: grid;
+  gap: 10px;
+  margin-top: 10px;
+  min-width: 260px;
+}
+fieldset {
+  display: grid;
+  gap: 6px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+.editor .check {
+  display: block;
+}

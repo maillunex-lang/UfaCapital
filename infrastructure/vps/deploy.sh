@@ -15,6 +15,7 @@ out=$(mktemp -d)
 trap 'rm -rf "$out"' EXIT
 
 CGO_ENABLED=0 go build -trimpath -o "$out/ufacapitald" ./server/cmd/ufacapitald
+(cd web/admin && npm ci --no-audit --no-fund >/dev/null && npm run build >/dev/null)
 
 sudo test -f /opt/ufacapital.env || { echo "/opt/ufacapital.env is missing" >&2; exit 1; }
 id ufacapital >/dev/null 2>&1 || sudo useradd --system --no-create-home --shell /usr/sbin/nologin ufacapital
@@ -23,6 +24,12 @@ sudo install -o root -g root -m 0755 "$out/ufacapitald" /opt/ufacapital/ufacapit
 sudo mv /opt/ufacapital/ufacapitald.new /opt/ufacapital/ufacapitald
 sudo find /opt/ufacapital/migrations -maxdepth 1 -name '*.sql' -delete
 sudo install -o root -g root -m 0644 server/migrations/*.sql /opt/ufacapital/migrations/
+sudo rm -rf /opt/ufacapital/admin.new
+sudo cp -r web/admin/dist /opt/ufacapital/admin.new
+sudo chown -R root:root /opt/ufacapital/admin.new
+sudo chmod -R u=rwX,go=rX /opt/ufacapital/admin.new
+sudo rm -rf /opt/ufacapital/admin
+sudo mv /opt/ufacapital/admin.new /opt/ufacapital/admin
 sudo install -o root -g root -m 0644 infrastructure/vps/ufacapital.service /etc/systemd/system/ufacapital.service
 sudo systemctl daemon-reload
 sudo systemctl enable ufacapital >/dev/null

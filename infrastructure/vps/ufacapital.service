@@ -12,6 +12,9 @@ WorkingDirectory=/opt/ufacapital
 EnvironmentFile=/opt/ufacapital.env
 Environment=MIGRATIONS_DIR=/opt/ufacapital/migrations
 Environment=ASSET_DIR=/var/lib/ufacapital/assets
+Environment=ADMIN_DIR=/opt/ufacapital/admin
+# Until the panel is behind HTTPS it answers only to 127.0.0.1 (SSH tunnel).
+Environment=ADMIN_LOOPBACK_ONLY=1
 StateDirectory=ufacapital
 ExecStart=/opt/ufacapital/ufacapitald
 # PostgreSQL runs in Docker and may come up later than this unit after a reboot.

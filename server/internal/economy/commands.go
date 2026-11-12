@@ -939,6 +939,10 @@ func (s *Service) SetConfig(ctx context.Context, actor uuid.UUID, key, value str
 	if err := tx.QueryRow(ctx, `SELECT COALESCE(MAX(version),0) FROM config_versions WHERE key=$1`, key).Scan(&current); err != nil {
 		return nil, err
 	}
+	if current == 0 {
+		// The panel edits existing settings. A new key needs code that reads it.
+		return nil, domain.E(404, "UNKNOWN_KEY", "такой настройки нет")
+	}
 	if expected != current {
 		return nil, domain.E(409, "STALE_VERSION", "настройка уже изменена")
 	}

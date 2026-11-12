@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"net"
 	"net/http"
 	"strings"
 	"time"
@@ -25,6 +26,11 @@ type Server struct {
 	Pool      *pgxpool.Pool
 	TestAdmin bool
 	Secure    bool
+	// AdminDir holds the built web admin. Empty means the panel is not served.
+	AdminDir string
+	// AdminLoopbackOnly hides everything under /admin from non-local clients.
+	// It stays on until the panel is behind HTTPS.
+	AdminLoopbackOnly bool
 }
 
 func (s *Server) Handler() http.Handler {
@@ -70,7 +76,37 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("GET /admin/api/v1/agents", s.adminAgents)
 	mux.HandleFunc("POST /admin/api/v1/agents/{id}/pause", s.adminPause)
 	mux.HandleFunc("GET /admin/api/v1/companies", s.adminCompanies)
-	return withCORS(mux)
+	mux.HandleFunc("GET /admin/api/v1/config", s.adminConfigList)
+	if s.AdminDir != "" {
+		mux.Handle("GET /admin/", http.StripPrefix("/admin/", http.FileServer(http.Dir(s.AdminDir))))
+	}
+	return withCORS(s.guardAdmin(mux))
+}
+
+// guardAdmin sets security headers on /admin and, while AdminLoopbackOnly is set,
+// answers 404 to clients from outside the machine.
+// The check uses the socket address, not a header, so a client cannot spoof it.
+func (s *Server) guardAdmin(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/admin" || strings.HasPrefix(r.URL.Path, "/admin/") {
+			if s.AdminLoopbackOnly {
+				host, _, err := net.SplitHostPort(r.RemoteAddr)
+				if ip := net.ParseIP(host); err != nil || ip == nil || !ip.IsLoopback() {
+					writeErr(w, r, domain.E(404, "NOT_FOUND", "не найдено"))
+					return
+				}
+			}
+			h := w.Header()
+			h.Set("Content-Security-Policy", "default-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'")
+			h.Set("X-Frame-Options", "DENY")
+			h.Set("X-Content-Type-Options", "nosniff")
+			h.Set("Referrer-Policy", "no-referrer")
+			if strings.HasPrefix(r.URL.Path, "/admin/api/") {
+				h.Set("Cache-Control", "no-store")
+			}
+		}
+		next.ServeHTTP(w, r)
+	})
 }
 
 func withCORS(next http.Handler) http.Handler {
@@ -729,7 +765,9 @@ func (s *Server) adminPlayers(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, r, domain.E(403, "FORBIDDEN", "нет прав"))
 		return
 	}
-	rows, err := s.Pool.Query(r.Context(), `SELECT id::text, email, display_name, is_ai, blocked_at IS NOT NULL FROM users ORDER BY created_at DESC LIMIT 100`)
+	rows, err := s.Pool.Query(r.Context(), `SELECT u.id::text, u.email, u.display_name, u.is_ai, u.blocked_at IS NOT NULL,
+		COALESCE((SELECT array_agg(role ORDER BY role) FROM user_roles WHERE user_id=u.id), '{}')
+		FROM users u ORDER BY u.created_at DESC LIMIT 100`)
 	if err != nil {
 		writeErr(w, r, err)
 		return
@@ -739,11 +777,12 @@ func (s *Server) adminPlayers(w http.ResponseWriter, r *http.Request) {
 	for rows.Next() {
 		var id, email, name string
 		var ai, blocked bool
-		if err := rows.Scan(&id, &email, &name, &ai, &blocked); err != nil {
+		var roles []string
+		if err := rows.Scan(&id, &email, &name, &ai, &blocked, &roles); err != nil {
 			writeErr(w, r, err)
 			return
 		}
-		out = append(out, map[string]any{"id": id, "email": email, "display_name": name, "is_ai": ai, "blocked": blocked})
+		out = append(out, map[string]any{"id": id, "email": email, "display_name": name, "is_ai": ai, "blocked": blocked, "roles": roles})
 	}
 	writeOK(w, r, out)
 }
@@ -798,21 +837,23 @@ func (s *Server) adminAudit(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, r, domain.E(403, "FORBIDDEN", "нет прав"))
 		return
 	}
-	rows, err := s.Pool.Query(r.Context(), `SELECT id::text, action, reason, created_at FROM audit_log ORDER BY created_at DESC LIMIT 100`)
+	rows, err := s.Pool.Query(r.Context(), `SELECT l.id::text, l.action, l.reason, l.created_at, COALESCE(u.display_name, 'система'), l.before_state, l.after_state
+		FROM audit_log l LEFT JOIN users u ON u.id=l.actor_id ORDER BY l.created_at DESC, l.id LIMIT 200`)
 	if err != nil {
 		writeErr(w, r, err)
 		return
 	}
 	defer rows.Close()
-	var out []map[string]string
+	var out []map[string]any
 	for rows.Next() {
-		var id, action, reason string
+		var id, action, reason, actor string
+		var before, after json.RawMessage
 		var at time.Time
-		if err := rows.Scan(&id, &action, &reason, &at); err != nil {
+		if err := rows.Scan(&id, &action, &reason, &at, &actor, &before, &after); err != nil {
 			writeErr(w, r, err)
 			return
 		}
-		out = append(out, map[string]string{"id": id, "action": action, "reason": reason, "at": at.UTC().Format(time.RFC3339)})
+		out = append(out, map[string]any{"id": id, "action": action, "reason": reason, "at": at.UTC().Format(time.RFC3339), "actor": actor, "before": before, "after": after})
 	}
 	writeOK(w, r, out)
 }
@@ -886,6 +927,33 @@ func (s *Server) adminConfig(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		writeErr(w, r, err)
 		return
+	}
+	writeOK(w, r, out)
+}
+
+func (s *Server) adminConfigList(w http.ResponseWriter, r *http.Request) {
+	u, err := s.adminUser(r)
+	if err != nil || !s.Auth.Has(u, "admin_read", "economy_admin") {
+		writeErr(w, r, errOr(err, domain.E(403, "FORBIDDEN", "нет прав")))
+		return
+	}
+	rows, err := s.Pool.Query(r.Context(), `SELECT DISTINCT ON (key) key, version, value #>> '{}', effective_at
+		FROM config_versions ORDER BY key, version DESC`)
+	if err != nil {
+		writeErr(w, r, err)
+		return
+	}
+	defer rows.Close()
+	out := []map[string]string{}
+	for rows.Next() {
+		var key, value string
+		var version int
+		var at time.Time
+		if err := rows.Scan(&key, &version, &value, &at); err != nil {
+			writeErr(w, r, err)
+			return
+		}
+		out = append(out, map[string]string{"key": key, "version": money.Format(int64(version)), "value": value, "effective_at": at.UTC().Format(time.RFC3339)})
 	}
 	writeOK(w, r, out)
 }

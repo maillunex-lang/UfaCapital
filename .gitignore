@@ -17,6 +17,7 @@ coverage.out
 # Node / admin
 node_modules/
 admin/dist/
+web/admin/dist/
 admin/.vite/
 
 # Godot

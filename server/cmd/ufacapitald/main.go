@@ -2,10 +2,13 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -39,6 +42,15 @@ func main() {
 		ArgonTime:    uint32(getenvInt("ARGON_TIME", 2)),
 		ArgonThreads: 1,
 	}
+	if len(os.Args) > 1 && os.Args[1] == "bootstrap-admin" {
+		// One-time command. Prints the TOTP link to stdout; redirect it to a root-only file.
+		secret, err := auth.BootstrapAdmin(ctx, os.Getenv("BOOTSTRAP_ADMIN_EMAIL"), os.Getenv("BOOTSTRAP_ADMIN_PASSWORD"), "Администратор")
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Printf("otpauth://totp/UFACAPITAL:%s?secret=%s&issuer=UFACAPITAL\n", url.QueryEscape(strings.ToLower(os.Getenv("BOOTSTRAP_ADMIN_EMAIL"))), secret)
+		return
+	}
 	econ := &economy.Service{
 		Pool:      pool,
 		Auth:      auth,
@@ -66,8 +78,9 @@ func main() {
 		}()
 	}
 	srv := &http.Server{
-		Addr:              addr,
-		Handler:           (&httpapi.Server{Auth: auth, Econ: econ, Pool: pool, TestAdmin: econ.TestAdmin, Secure: os.Getenv("ENVIRONMENT") == "prod"}).Handler(),
+		Addr: addr,
+		Handler: (&httpapi.Server{Auth: auth, Econ: econ, Pool: pool, TestAdmin: econ.TestAdmin, Secure: os.Getenv("ENVIRONMENT") == "prod",
+			AdminDir: os.Getenv("ADMIN_DIR"), AdminLoopbackOnly: os.Getenv("ADMIN_LOOPBACK_ONLY") != "0"}).Handler(),
 		ReadHeaderTimeout: 5 * time.Second,
 	}
 	go func() {

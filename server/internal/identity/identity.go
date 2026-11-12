@@ -550,3 +550,63 @@ func RandomPassword() (string, error) {
 }
 
 var ErrNoRows = errors.New("no rows")
+
+// BootstrapAdmin creates the first superadmin with TOTP already enrolled and
+// returns the base32 secret once. It refuses to run if any superadmin exists,
+// so it cannot be used to add a second way in.
+func (s *Service) BootstrapAdmin(ctx context.Context, email, password, display string) (string, error) {
+	email = strings.ToLower(strings.TrimSpace(email))
+	if !strings.Contains(email, "@") {
+		return "", domain.E(400, "BAD_EMAIL", "некорректная почта")
+	}
+	if len(password) < 16 {
+		return "", domain.E(400, "WEAK_PASSWORD", "пароль администратора короче 16 символов")
+	}
+	m, t, p := s.params()
+	hash, err := HashPassword(password, m, t, p)
+	if err != nil {
+		return "", err
+	}
+	secret := make([]byte, 20)
+	if _, err := rand.Read(secret); err != nil {
+		return "", err
+	}
+	tx, err := s.Pool.Begin(ctx)
+	if err != nil {
+		return "", err
+	}
+	defer tx.Rollback(ctx)
+	// One bootstrap at a time: the check below and the insert must not interleave.
+	if _, err := tx.Exec(ctx, `SELECT pg_advisory_xact_lock(7309001)`); err != nil {
+		return "", err
+	}
+	var exists bool
+	if err := tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM user_roles WHERE role='superadmin')`).Scan(&exists); err != nil {
+		return "", err
+	}
+	if exists {
+		return "", domain.E(409, "ADMIN_EXISTS", "суперадмин уже есть")
+	}
+	id := uuid.New()
+	if _, err := tx.Exec(ctx, `INSERT INTO users(id, email, password_hash, display_name) VALUES ($1,$2,$3,$4)`, id, email, hash, display); err != nil {
+		if isUnique(err) {
+			return "", domain.E(409, "EMAIL_TAKEN", "почта уже зарегистрирована")
+		}
+		return "", err
+	}
+	if _, err := tx.Exec(ctx, `INSERT INTO user_roles(user_id, role) VALUES ($1,'player'), ($1,'superadmin')`, id); err != nil {
+		return "", err
+	}
+	if _, err := tx.Exec(ctx, `INSERT INTO user_totp(user_id, secret, enabled) VALUES ($1,$2,true)`, id, secret); err != nil {
+		return "", err
+	}
+	if _, err := tx.Exec(ctx, `INSERT INTO audit_log(id, actor_id, action, reason, after_state, correlation_id)
+		VALUES ($1, NULL, 'bootstrap_admin', 'первый суперадмин создан командой на сервере', $2, $3)`,
+		uuid.New(), `{"user":"`+id.String()+`"}`, uuid.New()); err != nil {
+		return "", err
+	}
+	if err := tx.Commit(ctx); err != nil {
+		return "", err
+	}
+	return base32.StdEncoding.WithPadding(base32.NoPadding).EncodeToString(secret), nil
+}
